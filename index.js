@@ -1,17 +1,26 @@
 const apiKey = 'e3ad77404dc88bee59f4a50942c3dbc6';
 
-const cities = ['Алматы', 'Астана', 'Шымкент', 'Қарағанды', 'Тараз', 'Павлодар', 'Семей', 'Ақтөбе', 'Өскемен', 'Қостанай'];
+const cities = ['Алматы', 'Астана', 'Шымкент'];
 
 const cityList = document.getElementById('city-list');
+const kzlist =  document.querySelector('.kz-cityes')
 
-cities.forEach(city => {
-    const listItem = document.createElement('');
-    listItem.textContent = city;
-    cityList.appendChild(listItem);
-});
+cityList.addEventListener('click' , ()=>{
+    document.getElementById('weather-info').innerHTML = ''
+    cities.forEach(city => {
+        getWeather(city)
+    });
+})
 
-async function getWeather() {
-    const city = document.getElementById('city').value;
+document.getElementById('search').addEventListener('click',function(){
+    document.getElementById('weather-info').innerHTML = ''
+    getWeather()
+})
+
+async function getWeather(city) {
+    if (!city) {
+        city = document.getElementById('city').value;
+    }
     const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
 
     try {
@@ -21,11 +30,25 @@ async function getWeather() {
         if (data.cod === '404') {
             document.getElementById('weather-info').innerHTML = `<p>Қала табылмады. Қайта енгізіңіз.</p>`;
         } else {
-            document.getElementById('location').innerText = `${data.name}, ${data.sys.country}`;
-            document.getElementById('temperature').innerText = `Температура: ${data.main.temp}°C`;
-            document.getElementById('description').innerText = `Ауа райы: ${data.weather[0].description}`;
+
+            let div = document.createElement('div')
+            
+            div.innerHTML = `<h3 id="location">${data.name}, ${data.sys.country}</h3>
+                <p id="temperature">Температура: ${data.main.temp}°C</p>
+                <p id="description">Ауа райы: ${data.weather[0].description}</p>`
+
+            document.getElementById('weather-info').appendChild(div)
         }
     } catch (error) {
         console.error("Ошибка при получении города: ", error);
     }
 }
+
+function showDefaultCity() {
+    document.getElementById('weather-info').innerHTML = ''
+    getWeather('Almaty');
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+    document.getElementById('my-cities').addEventListener('click', showDefaultCity);
+});
